@@ -1,17 +1,9 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
+import os
+from flask import Flask
 import dash
 from dash import dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
-
-
-# In[2]:
-
 
 def load_and_reshape(file_path, file_label):
     df = pd.read_csv(file_path)
@@ -28,37 +20,27 @@ def load_and_reshape(file_path, file_label):
     
     return reshaped_df
 
-
-# In[3]:
-
-
-file_paths = {'124_0770_IW3_VV': '124_0770_IW3_VV.csv',
-              '124_0771_IW3_VV': '124_0771_IW3_VV.csv',
-              '175_0303_IW1_VV': '175_0303_IW1_VV.csv',
-              '175_0304_IW1_VV': '175_0304_IW1_VV.csv',
-              '022_0770_IW1_VV': '022_0770_IW1_VV.csv',
-              '073_0301_IW3_VV': '073_0301_IW3_VV.csv',
-              '073_0302_IW3_VV': '073_0302_IW3_VV.csv'}
-
-
-# In[4]:
-
+file_paths = {
+    '124_0770_IW3_VV': '124_0770_IW3_VV.csv',
+    '124_0771_IW3_VV': '124_0771_IW3_VV.csv',
+    '175_0303_IW1_VV': '175_0303_IW1_VV.csv',
+    '175_0304_IW1_VV': '175_0304_IW1_VV.csv',
+    '022_0770_IW1_VV': '022_0770_IW1_VV.csv',
+    '073_0301_IW3_VV': '073_0301_IW3_VV.csv',
+    '073_0302_IW3_VV': '073_0302_IW3_VV.csv'
+}
 
 all_data = pd.concat([load_and_reshape(path, label) for label, path in file_paths.items()], ignore_index=True)
 
-
-# In[49]:
-
-
-app = dash.Dash(__name__)
+server = Flask(__name__)
+app = dash.Dash(__name__, server=server)
 
 app.layout = html.Div([
     dcc.Graph(id='map'),
     html.Div(id='displacement-container', children=[
         dcc.Graph(id='displacement-graph')
-    ], style={'display': 'none'}) 
+    ], style={'display': 'none'})
 ])
-
 
 @app.callback(
     Output('map', 'figure'),
@@ -71,10 +53,9 @@ def update_map(_):
         lon='longitude', 
         hover_name='pid', 
         color='file',
-        zoom=5,  
-        height=600  
+        zoom=5,
+        height=600
     )
-    
 
     min_lat = all_data['latitude'].min()
     max_lat = all_data['latitude'].max()
@@ -91,7 +72,6 @@ def update_map(_):
     fig.update_layout(legend_title_text='File number') 
     return fig
 
-
 @app.callback(
     [Output('displacement-graph', 'figure'),
      Output('displacement-container', 'style')],
@@ -101,7 +81,7 @@ def display_displacement(clickData):
     if clickData is None:
         return {}, {'display': 'none'}
     
-    point_id = clickData['points'][0]['hovertext']  
+    point_id = clickData['points'][0]['hovertext']
     filtered_data = all_data[all_data['pid'] == point_id]
 
     fig = px.line(filtered_data, x='timestamp', y='displacement', 
@@ -111,16 +91,6 @@ def display_displacement(clickData):
     
     return fig, {'display': 'block'}
 
-
-# In[50]:
-
-
 if __name__ == '__main__':
-    app.run_server(debug=True)
-
-
-# In[ ]:
-
-
-
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run_server(debug=True, host="0.0.0.0", port=port)
