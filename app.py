@@ -36,7 +36,7 @@ server = Flask(__name__)
 app = dash.Dash(__name__, server=server)
 
 app.layout = html.Div([
-    dcc.Graph(id='map'),
+    dcc.Graph(id='map', style={'height': '80vh'}),  # Zwiększ wysokość mapy do 80% wysokości widoku
     html.Div(id='displacement-container', children=[
         dcc.Graph(id='displacement-graph')
     ], style={'display': 'none'})
@@ -68,6 +68,17 @@ def update_map(_):
 
     fig.update_layout(mapbox_bounds={"west": min_lon - 0.05, "east": max_lon + 0.05, "south": min_lat - 0.05, 
                                      "north": max_lat + 0.05})
+
+    # Przenieś legendę na mapę
+    fig.update_layout(
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01
+        ),
+        margin={"r":0,"t":0,"l":0,"b":0}  # Zmniejsz marginesy, aby mapa była większa
+    )
     
     fig.update_layout(legend_title_text='File number') 
     return fig
