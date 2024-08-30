@@ -69,7 +69,7 @@ def update_map(_):
     fig.update_layout(mapbox_bounds={"west": min_lon - 0.05, "east": max_lon + 0.05, "south": min_lat - 0.05, 
                                      "north": max_lat + 0.05})
 
-    # Przenieś legendę na mapę
+
     fig.update_layout(
         legend=dict(
             yanchor="top",
@@ -77,7 +77,7 @@ def update_map(_):
             xanchor="left",
             x=0.01
         ),
-        margin={"r":0,"t":0,"l":0,"b":0}  # Zmniejsz marginesy, aby mapa była większa
+        margin={"r":0,"t":0,"l":0,"b":0}  
     )
     
     fig.update_layout(legend_title_text='File number') 
@@ -96,9 +96,9 @@ def display_displacement(clickData):
     filtered_data = all_data[all_data['pid'] == point_id]
 
     fig = px.line(filtered_data, x='timestamp', y='displacement', 
-                  title=f"Displacement Data for Point {point_id}",
+                  title=f"Przemieszczenie dla punktu {point_id}",
                   markers=True)
-    fig.update_layout(xaxis_title='Date', yaxis_title='Displacement (mm)')
+    fig.update_layout(xaxis_title='Data', yaxis_title='Przemieszczenie(mm)')
     
     return fig, {'display': 'block'}
 
